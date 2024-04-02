@@ -109,74 +109,74 @@ class Misc {
     return byteData?.buffer.asUint8List();
   }
 
-  static Future<Uint8List> widgetToImageBytes({
-    required Widget child,
-    Size? size,
-    double? pixelRatio,
-    ui.ImageByteFormat format = ui.ImageByteFormat.png,
-    Duration delay = Duration.zero,
-    BuildContext? context,
-  }) async {
-    final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
-    final PipelineOwner pipelineOwner = PipelineOwner();
-    final Size logicalSize = size ?? ui.window.physicalSize / ui.window.devicePixelRatio;
-    final RenderView renderView = RenderView(
-      child: RenderPositionedBox(child: repaintBoundary),
-      configuration: ViewConfiguration(
-        size: logicalSize,
-        devicePixelRatio: pixelRatio ?? 1.0,
-      ),
-    );
+  // static Future<Uint8List> widgetToImageBytes({
+  //   required Widget child,
+  //   Size? size,
+  //   double? pixelRatio,
+  //   ui.ImageByteFormat format = ui.ImageByteFormat.png,
+  //   Duration delay = Duration.zero,
+  //   BuildContext? context,
+  // }) async {
+  //   final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
+  //   final PipelineOwner pipelineOwner = PipelineOwner();
+  //   final Size logicalSize = size ?? ui.window.physicalSize / ui.window.devicePixelRatio;
+  //   final RenderView renderView = RenderView(
+  //     child: RenderPositionedBox(child: repaintBoundary),
+  //     configuration: ViewConfiguration(
+  //       size: logicalSize,
+  //       devicePixelRatio: pixelRatio ?? 1.0,
+  //     ),
+  //   );
 
-    int retryCounter = 3;
-    bool isDirty = false;
-    ui.Image? image;
+  //   int retryCounter = 3;
+  //   bool isDirty = false;
+  //   ui.Image? image;
 
-    final BuildOwner buildOwner = BuildOwner(
-      focusManager: FocusManager(),
-      onBuildScheduled: () => isDirty = true,
-    );
+  //   final BuildOwner buildOwner = BuildOwner(
+  //     focusManager: FocusManager(),
+  //     onBuildScheduled: () => isDirty = true,
+  //   );
 
-    final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
-      container: repaintBoundary,
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: context != null
-            ? InheritedTheme.captureAll(
-                context,
-                MediaQuery(data: MediaQuery.of(context), child: child),
-              )
-            : child,
-      ),
-    ).attachToRenderTree(buildOwner);
+  //   final rootElement = RenderObjectToWidgetAdapter<RenderBox>(
+  //     container: repaintBoundary,
+  //     child: Directionality(
+  //       textDirection: TextDirection.ltr,
+  //       child: context != null
+  //           ? InheritedTheme.captureAll(
+  //               context,
+  //               MediaQuery(data: MediaQuery.of(context), child: child),
+  //             )
+  //           : child,
+  //     ),
+  //   ).attachToRenderTree(buildOwner);
 
-    pipelineOwner.rootNode = renderView;
-    renderView.prepareInitialFrame();
+  //   pipelineOwner.rootNode = renderView;
+  //   renderView.prepareInitialFrame();
 
-    void buildScope() {
-      buildOwner
-        ..buildScope(rootElement)
-        ..finalizeTree();
-      pipelineOwner
-        ..flushLayout()
-        ..flushCompositingBits()
-        ..flushPaint();
-    }
+  //   void buildScope() {
+  //     buildOwner
+  //       ..buildScope(rootElement)
+  //       ..finalizeTree();
+  //     pipelineOwner
+  //       ..flushLayout()
+  //       ..flushCompositingBits()
+  //       ..flushPaint();
+  //   }
 
-    buildScope();
+  //   buildScope();
 
-    do {
-      isDirty = false;
-      image = await repaintBoundary.toImage(
-        pixelRatio: pixelRatio ?? (ui.window.physicalSize.width / logicalSize.width),
-      );
-      await Future.delayed(delay);
-      if (isDirty) buildScope();
-      retryCounter--;
-    } while (isDirty && retryCounter >= 0);
-    final ByteData? byteData = await image.toByteData(format: format);
-    return byteData!.buffer.asUint8List();
-  }
+  //   do {
+  //     isDirty = false;
+  //     image = await repaintBoundary.toImage(
+  //       pixelRatio: pixelRatio ?? (ui.window.physicalSize.width / logicalSize.width),
+  //     );
+  //     await Future.delayed(delay);
+  //     if (isDirty) buildScope();
+  //     retryCounter--;
+  //   } while (isDirty && retryCounter >= 0);
+  //   final ByteData? byteData = await image.toByteData(format: format);
+  //   return byteData!.buffer.asUint8List();
+  // }
 
   static bool isUsername(String text) => RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9_.]+[a-zA-Z0-9]$').hasMatch(text);
 
